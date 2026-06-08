@@ -1,0 +1,22 @@
+# .gitignore para cli-ai-local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+
+# Secrets & Config
+.env
+*.local
+config.json
+!config.example.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
