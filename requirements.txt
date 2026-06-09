@@ -1,4 +1,3 @@
-# No momento, o launcher utiliza apenas bibliotecas padrão do Python (os, sys, subprocess, platform).
-# Caso deseje adicionar bibliotecas como 'rich' ou 'inquirer' para um menu mais bonito no futuro:
-# rich>=12.0.0
-# inquirer>=2.9.0
+# Dependências opcionais para interface rica
+rich>=12.0.0
+inquirer>=2.9.0

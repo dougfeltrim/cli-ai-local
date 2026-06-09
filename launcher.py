@@ -2,6 +2,17 @@ import os
 import sys
 import subprocess
 import platform
+import shutil
+
+try:
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.table import Table
+    from rich.text import Text
+    from rich import box
+    HAS_RICH = True
+except ImportError:
+    HAS_RICH = False
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -28,33 +39,93 @@ def load_env():
                     key, val = line.split('=', 1)
                     key = key.strip()
                     val = val.strip()
+                    
+                    # Handle end of line comments
+                    if '#' in val:
+                        # Check if quoted
+                        if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                            pass
+                        elif (val.startswith('"') and '"' in val[1:]) or (val.startswith("'") and "'" in val[1:]):
+                            q_char = val[0]
+                            closing_idx = val.find(q_char, 1)
+                            if closing_idx != -1:
+                                val = val[:closing_idx + 1].strip()
+                        else:
+                            val = val.split('#', 1)[0].strip()
+                            
                     # Remove surrounding quotes if present
                     if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                         val = val[1:-1]
                     os.environ[key] = val
 
+def print_menu():
+    # Check tool statuses
+    status_claude = "[green][OK] Instalado[/]" if shutil.which("claude") else "[red][X] Nao Encontrado[/]"
+    status_codex = "[green][OK] Instalado[/]" if shutil.which("codex") else "[red][X] Nao Encontrado[/]"
+    status_gemini = "[green][OK] Instalado[/]" if shutil.which("gemini") else "[red][X] Nao Encontrado[/]"
+    status_lms = "[green][OK] Instalado[/]" if shutil.which("lms") else "[red][X] Nao Encontrado[/]"
+
+    if HAS_RICH:
+        console = Console()
+        clear_screen()
+        title = Text("CLI Local AI Launcher", style="bold cyan")
+        subtitle = Text(f"Sistema Operacional: {platform.system()}", style="italic gray50")
+        
+        console.print(Panel(
+            title, 
+            subtitle=subtitle,
+            border_style="cyan", 
+            box=box.ROUNDED, 
+            expand=False
+        ))
+        
+        table = Table(show_header=True, header_style="bold magenta", box=box.SIMPLE)
+        table.add_column("Opcao", justify="center", style="bold yellow")
+        table.add_column("Provedor de LLM", style="bold white")
+        table.add_column("Status no Sistema", justify="center")
+        
+        table.add_row("1", "Claude Code", status_claude)
+        table.add_row("2", "Codex OpenAI", status_codex)
+        table.add_row("3", "Gemini CLI", status_gemini)
+        table.add_row("4", "LM Studio (Direct)", status_lms)
+        table.add_row("Q", "Sair (Quit)", "[bold red]Sair[/]")
+        
+        console.print(table)
+        console.print("")
+    else:
+        clear_screen()
+        print("=============================================")
+        print("             CLI Local AI Launcher           ")
+        print("=============================================")
+        print(f"Detected OS: {platform.system()}")
+        
+        raw_status_claude = "[OK] Instalado" if shutil.which("claude") else "[X] Nao Encontrado"
+        raw_status_codex = "[OK] Instalado" if shutil.which("codex") else "[X] Nao Encontrado"
+        raw_status_gemini = "[OK] Instalado" if shutil.which("gemini") else "[X] Nao Encontrado"
+        raw_status_lms = "[OK] Instalado" if shutil.which("lms") else "[X] Nao Encontrado"
+        
+        print("\nSelect LLM Provider:")
+        print(f"  [1] Claude Code       ({raw_status_claude})")
+        print(f"  [2] Codex OpenAI      ({raw_status_codex})")
+        print(f"  [3] Gemini CLI        ({raw_status_gemini})")
+        print(f"  [4] LM Studio (Direct) ({raw_status_lms})")
+        print("  [Q] Quit")
+        print("")
+
 def main():
     load_env()
-    clear_screen()
-    print("=============================================")
-    print("             CLI Local AI Launcher           ")
-    print("=============================================")
-    
     os_type = get_os_type()
     if os_type == 'unknown':
         print(f"Unsupported OS: {platform.system()}")
         sys.exit(1)
 
-    print(f"Detected OS: {platform.system()}")
-    print("\nSelect LLM Provider:")
-    print("  [1] Claude Code")
-    print("  [2] Codex OpenAI")
-    print("  [3] Gemini CLI")
-    print("  [4] LM Studio (Direct)")
-    print("  [Q] Quit")
-    print("")
+    print_menu()
 
-    choice = input("Choose option [1-4, Q]: ").strip().upper()
+    if HAS_RICH:
+        console = Console()
+        choice = console.input("[bold cyan]Choose option [1-4, Q]: [/]").strip().upper()
+    else:
+        choice = input("Choose option [1-4, Q]: ").strip().upper()
 
     if choice == 'Q':
         print("Exiting...")
@@ -96,11 +167,11 @@ def main():
 
     try:
         if os_type == 'win':
-            # Use PowerShell to run the .ps1 script
-            subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", script_path], check=True)
+            # Use PowerShell to run the .ps1 script, forwarding any extra CLI arguments
+            subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", script_path] + sys.argv[1:], check=True)
         else:
-            # Use Bash to run the .sh script
-            subprocess.run(["bash", script_path], check=True)
+            # Use Bash to run the .sh script, forwarding any extra CLI arguments
+            subprocess.run(["bash", script_path] + sys.argv[1:], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error executing script: {e}")
         sys.exit(1)

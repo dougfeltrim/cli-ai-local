@@ -1,15 +1,28 @@
-# Wrapper for Codex Launcher
-$rootPath = (Get-Item $PSScriptRoot).Parent.FullName
-$scriptPath = Join-Path $rootPath "scripts\start-codex-local.ps1"
+# Wrapper for Codex Launcher in PowerShell
 
-if (-not (Test-Path $scriptPath)) {
-    $scriptPath = Join-Path (Get-Item $PSScriptRoot).Parent.Parent.FullName "scripts\start-codex-local.ps1"
+param(
+  [string]$Model,
+  [Parameter(ValueFromRemainingArguments = $true)]
+  [string[]]$CodexArgs
+)
+
+if (-not $Model) {
+  if ($env:CODEX_MODEL) {
+    $Model = $env:CODEX_MODEL
+  } else {
+    $Model = "gpt-oss:20b"
+  }
 }
 
-if (Test-Path $scriptPath) {
-    & $scriptPath @args
+Write-Host "=============================================" -ForegroundColor Cyan
+Write-Host "         Local Codex Launcher" -ForegroundColor Cyan
+Write-Host "=============================================" -ForegroundColor Cyan
+
+if (Get-Command codex -ErrorAction SilentlyContinue) {
+  Write-Host "Running: codex --model $Model $CodexArgs" -ForegroundColor Gray
+  & codex --model $Model @CodexArgs
 } else {
-    Write-Error "Script start-codex-local.ps1 não encontrado."
-    exit 1
+  Write-Error "Erro: 'codex' CLI não está instalado ou não está no PATH."
+  exit 1
 }
 exit $LASTEXITCODE
