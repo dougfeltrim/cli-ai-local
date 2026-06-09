@@ -3,6 +3,7 @@ import sys
 import subprocess
 import platform
 import shutil
+import json
 
 try:
     from rich.console import Console
@@ -57,6 +58,44 @@ def load_env():
                     if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                         val = val[1:-1]
                     os.environ[key] = val
+
+def get_local_models():
+    """Returns a list of local LLM models using lms ls --json."""
+    if not shutil.which("lms"):
+        return []
+    try:
+        result = subprocess.run(["lms", "ls", "--json"], capture_output=True, text=True, check=True)
+        data = json.loads(result.stdout)
+        # Filter only type="llm"
+        models = [item['modelKey'] for item in data if item.get('type') == 'llm']
+        return models
+    except Exception:
+        return []
+
+def select_model(provider_name):
+    models = get_local_models()
+    if not models:
+        return None  # No models found, rely on default
+
+    if HAS_RICH:
+        console = Console()
+        console.print(f"\n[bold cyan]Modelos disponíveis para {provider_name}:[/]")
+        table = Table(show_header=True, header_style="bold magenta", box=box.SIMPLE)
+        table.add_column("Opção", justify="center", style="bold yellow")
+        table.add_column("Modelo", style="bold white")
+        for i, m in enumerate(models, 1):
+            table.add_row(str(i), m)
+        console.print(table)
+        choice = console.input("[bold cyan]Escolha o modelo pelo número (pressione Enter para usar o padrão): [/]").strip()
+    else:
+        print(f"\nModelos disponíveis para {provider_name}:")
+        for i, m in enumerate(models, 1):
+            print(f"  [{i}] {m}")
+        choice = input("Escolha o modelo pelo número (pressione Enter para usar o padrão): ").strip()
+        
+    if choice.isdigit() and 1 <= int(choice) <= len(models):
+        return models[int(choice) - 1]
+    return None
 
 def print_menu():
     # Check tool statuses
@@ -144,6 +183,15 @@ def main():
         sys.exit(1)
 
     provider = provider_map[choice]
+
+    provider_names = {
+        '1': 'Claude Code',
+        '2': 'Codex OpenAI',
+        '3': 'Gemini CLI',
+        '4': 'LM Studio (Direct)'
+    }
+    provider_name = provider_names.get(choice, "Provedor")
+    selected_model = select_model(provider_name)
     
     # Determine script extension based on OS
     ext = 'ps1' if os_type == 'win' else 'sh'
@@ -165,13 +213,32 @@ def main():
 
     print(f"Launching {provider} using {script_path}...")
 
+    env = os.environ.copy()
+    if selected_model:
+        env['CLAUDE_MODEL'] = selected_model
+        env['CODEX_MODEL'] = selected_model
+        env['GEMINI_MODEL'] = selected_model
+
+    # Sanitize ANTHROPIC_BASE_URL (Claude CLI automatically appends /v1/messages)
+    base_url = env.get('ANTHROPIC_BASE_URL', '')
+    if base_url:
+        base_url = base_url.rstrip('/')
+        if base_url.endswith('/v1'):
+            env['ANTHROPIC_BASE_URL'] = base_url[:-3]
+
     try:
+        cmd = []
         if os_type == 'win':
             # Use PowerShell to run the .ps1 script, forwarding any extra CLI arguments
-            subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", script_path] + sys.argv[1:], check=True)
+            cmd = ["powershell", "-ExecutionPolicy", "Bypass", "-File", script_path]
+            if selected_model:
+                cmd.extend(["-Model", selected_model])
         else:
             # Use Bash to run the .sh script, forwarding any extra CLI arguments
-            subprocess.run(["bash", script_path] + sys.argv[1:], check=True)
+            cmd = ["bash", script_path]
+
+        cmd.extend(sys.argv[1:])
+        subprocess.run(cmd, env=env, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error executing script: {e}")
         sys.exit(1)
