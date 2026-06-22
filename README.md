@@ -1,17 +1,18 @@
 <div align="center">
   <h1>🚀 Local AI CLI Launcher</h1>
-  
-  <p><b>Um orquestrador que unifica suas ferramentas de IA em um menu interativo para facilitar o início de agentes de codificação usando suas LLMs locais.</b></p>
 
-  <!-- Badges -->
-  <p>
+<p><b>Um orquestrador que unifica suas ferramentas de IA em um menu interativo para facilitar o início de agentes de codificação usando suas LLMs locais.</b></p>
+
+<!-- Badges -->
+
+<p>
     <img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python" alt="Python 3.8+">
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License MIT">
     <img src="https://img.shields.io/badge/Status-Beta-yellow?style=flat-square" alt="Status Beta">
     <img src="https://img.shields.io/badge/OS-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square" alt="Platforms">
   </p>
 
-  <p>
+<p>
     <a href="#-o-que-é">O que é</a> •
     <a href="#-por-que-usar">Por que usar</a> •
     <a href="#-pré-requisitos">Pré-requisitos</a> •
@@ -37,7 +38,9 @@ O **Local AI CLI Launcher** é uma aplicação projetada para centralizar e faci
 ## 💡 Por que usar?
 
 ### Antes (Sem o Launcher) 😫
+
 Você precisa lembrar e digitar comandos manualmente toda vez:
+
 ```bash
 export ANTHROPIC_BASE_URL=http://localhost:1234
 export ANTHROPIC_AUTH_TOKEN=seu-token
@@ -47,33 +50,33 @@ claude code --base-url http://localhost:1234
 ```
 
 ### Depois (Com o Launcher) 🤩
+
 Um único comando resolve tudo:
+
 ```bash
 python launcher.py
 ```
-*→ O menu interativo é aberto*  
-*→ Você seleciona a ferramenta desejada*  
+
+*→ O menu interativo é aberto*
+*→ Você seleciona a ferramenta desejada*
 *→ Tudo é configurado e iniciado automaticamente! ✨*
 
-> **Dica:** Aqui você pode adicionar um GIF ou screenshot do menu em funcionamento no futuro!  
-> `![Demo do Launcher](caminho/para/o/gif.gif)`
-
----
 
 ## 🔧 Pré-requisitos
 
 Certifique-se de ter as seguintes ferramentas instaladas em sua máquina:
 
-| Ferramenta | Status | Como Instalar / Obter |
-|:---|:---:|:---|
-| **Python 3.8+** | Obrigatório | [python.org](https://python.org) |
-| **Claude Code** | Obrigatório | `npm install -g @anthropic-ai/claude-code` |
-| **LM Studio** | Recomendado | [lmstudio.ai](https://lmstudio.ai) |
-| **Hermes Agent** | Opcional | https://github.com/nousresearch/hermes-agent |
-| **Gemini CLI** | Opcional | `npm install -g @google/gemini-cli` |
-| **Ollama** | Opcional | [ollama.com](https://ollama.com) |
+| Ferramenta             |    Status    | Como Instalar / Obter                        |
+| :--------------------- | :----------: | :------------------------------------------- |
+| **Python 3.8+**  | Obrigatório | [python.org](https://python.org)                |
+| **Claude Code**  | Obrigatório | `npm install -g @anthropic-ai/claude-code` |
+| **LM Studio**    | Recomendado | [lmstudio.ai](https://lmstudio.ai)              |
+| **Hermes Agent** |   Opcional   | https://github.com/nousresearch/hermes-agent |
+| **Gemini CLI**   |   Opcional   | `npm install -g @google/gemini-cli`        |
+| **Ollama**       |   Opcional   | [ollama.com](https://ollama.com)                |
 
 ### 🔍 Verificar Instalação
+
 ```bash
 python --version          # ✓ Python 3.8+
 claude --version          # ✓ Claude Code
@@ -87,13 +90,15 @@ hermes --version          # ✓ Hermes Agent (se usar)
 ## 📦 Instalação
 
 **1. Clone o repositório:**
+
 ```bash
 git clone https://github.com/dougfeltrim/cli-ai-local.git
 cd cli-ai-local
 ```
 
-**2. Execute o script de Instalação:**  
+**2. Execute o script de Instalação:**
 Este script instalará dependências, criará seu arquivo `.env` padrão e ajustará permissões.
+
 ```bash
 # No Windows
 python install.py
@@ -106,6 +111,7 @@ python3 install.py
 Após o setup, você pode iniciar o launcher de duas formas:
 
 **A) Execução Local (na pasta do projeto)**
+
 ```bash
 # Windows
 .venv\Scripts\cli-ai
@@ -116,10 +122,13 @@ Após o setup, você pode iniciar o launcher de duas formas:
 
 **B) Instalação Global (rodar de QUALQUER terminal)**
 Para que o comando fique disponível em todo o sistema operacional a partir de qualquer pasta (apenas passando o nome do comando), execute:
+
 ```bash
 pip install --user -e .
 ```
+
 E agora você pode iniciá-lo de qualquer lugar com:
+
 ```bash
 cli-ai
 # ou
@@ -129,6 +138,7 @@ cli-ai-local
 > **⚠️ Aviso no Windows:** Se você receber o erro *"O termo 'cli-ai' não é reconhecido"*, significa que a pasta de Scripts do Python (ex: `C:\Users\SeuUsuario\AppData\Roaming\Python\Python314\Scripts`) não está no seu `PATH` do sistema. O próprio comando `pip` exibe um aviso em amarelo com o caminho correto durante a instalação. Adicione esse caminho nas Variáveis de Ambiente do Windows e reinicie o terminal.
 
 Você verá o menu interativo:
+
 ```text
 ╔═══════════════════════════════════╗
 ║  Local AI CLI Launcher v1.0       ║
@@ -150,27 +160,37 @@ Escolha uma opção:
 ## 🚀 Como Usar
 
 ### `[1]` Claude Code + LM Studio Local
+
 Abre o **Claude Code** já configurado para utilizar um modelo local hospedado no LM Studio.
+
 - **Ideal para:** Máxima privacidade, uso de modelos locais (Qwen, Llama, Mistral) e independência de APIs externas.
 - **Como funciona:** Define automaticamente `ANTHROPIC_BASE_URL` e `CLAUDE_MODEL` a partir do seu `.env`.
 
 ### `[2]` Codex OpenAI
+
 Inicia a interface do **Codex** configurada para modelos compatíveis com a API da OpenAI.
+
 - **Ideal para:** Utilizar modelos mais robustos via API (como GPT-4o ou Claude 3.5 Sonnet através de proxies).
 - **Como funciona:** Carrega o modelo de `CODEX_MODEL` e repassa argumentos adicionais nativamente.
 
 ### `[3]` Gemini CLI
+
 Inicia o **terminal do Gemini** para interações diretas com os modelos do Google.
+
 - **Ideal para:** Interações multimodais e uso do ecossistema Google no terminal.
 - **Como funciona:** Inicia a sessão interativa com o modelo definido em `GEMINI_MODEL`.
 
 ### `[4]` LM Studio (Direct)
+
 Gerenciamento rápido do LM Studio direto do terminal.
+
 - **Ideal para:** Trocas rápidas de modelos e setup automático "mão na roda".
 - **Como funciona:** Descarrega modelos antigos, carrega o novo `CLAUDE_MODEL`, inicia o servidor em background e já abre o Claude Code vinculado a ele.
 
 ### `[5]` Hermes Agent
+
 Inicia o **Hermes Agent**, um agente autônomo com recursos avançados.
+
 - **Ideal para:** Uso de ferramentas avançadas, agentes locais robustos criados pela Nous Research.
 - **Como funciona:** Inicia a interface do `hermes` e repassa o `HERMES_MODEL` se definido.
 
@@ -201,43 +221,43 @@ GEMINI_MODEL=gemini-2.0-flash
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CODEX_MODEL=gpt-oss:20b
 ```
+
 </details>
 
 <details>
 <summary><strong>Exemplo: Ollama + Claude Code</strong></summary>
 
 Se você prefere o Ollama ao invés do LM Studio:
+
 ```env
 CLAUDE_MODEL=neural-chat:7b
 ANTHROPIC_BASE_URL=http://localhost:11434
 ANTHROPIC_AUTH_TOKEN=ollama
 ```
+
 </details>
 
 ---
 
 ## 🛠️ Solução de Problemas
 
-- **Comando não encontrado (`claude`, `lms`, `gemini`)**  
-  As ferramentas não estão no `PATH`. Reinstale as dependências via NPM e reinicie seu terminal.
-- **Erro de Permissão (Linux/macOS)**  
-  Execute `chmod +x scripts/*.sh` e `chmod +x launcher.py`.
-- **PowerShell não executa o script (Windows)**  
-  Abra o PowerShell como Administrador e rode: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`.
-- **Porta 1234 já em uso (LM Studio)**  
+- **Comando não encontrado (`claude`, `lms`, `gemini`)**As ferramentas não estão no `PATH`. Reinstale as dependências via NPM e reinicie seu terminal.
+- **Erro de Permissão (Linux/macOS)**Execute `chmod +x scripts/*.sh` e `chmod +x launcher.py`.
+- **PowerShell não executa o script (Windows)**Abra o PowerShell como Administrador e rode: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`.
+- **Porta 1234 já em uso (LM Studio)**
   Feche o servidor ativo do LM Studio ou mate o processo (`netstat -ano | findstr :1234` no Windows).
 
 ---
 
 ## 📊 Compatibilidade e Testes
 
-| Ferramenta | Windows | Linux | macOS |
-|:---|:---:|:---:|:---:|
-| **Claude Code** | ✅ | ⚠️ | ⚠️ |
-| **LM Studio** | ✅ | ⚠️ | ⚠️ |
-| **Gemini CLI** | ⚠️ | ⚠️ | ⚠️ |
-| **Codex OpenAI** | ✅ | ⚠️ | ⚠️ |
-| **Hermes Agent** | ✅ | ⚠️ | ⚠️ |
+| Ferramenta             | Windows | Linux | macOS |
+| :--------------------- | :-----: | :---: | :---: |
+| **Claude Code**  |   ✅   | ⚠️ | ⚠️ |
+| **LM Studio**    |   ✅   | ⚠️ | ⚠️ |
+| **Gemini CLI**   |  ⚠️  | ⚠️ | ⚠️ |
+| **Codex OpenAI** |   ✅   | ⚠️ | ⚠️ |
+| **Hermes Agent** |   ✅   | ⚠️ | ⚠️ |
 
 *(✅ Testado e funcionando | ⚠️ Estrutura pronta, necessita de feedback)*
 
@@ -245,7 +265,7 @@ ANTHROPIC_AUTH_TOKEN=ollama
 
 ---
 
-## 🤝 Como Contribuir
+## Como Contribuir ?
 
 1. Faça um **Fork** do projeto.
 2. Crie uma branch para sua modificação (`git checkout -b feature/sua-feature`).
