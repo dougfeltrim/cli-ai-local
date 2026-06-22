@@ -60,7 +60,8 @@ def main():
         "claude": ("Claude Code", "npm install -g @anthropic-ai/claude-code"),
         "lms": ("LM Studio CLI", "Habilite a CLI nas configuracoes do LM Studio"),
         "gemini": ("Gemini CLI", "Instale a CLI oficial do Gemini (gemini)"),
-        "codex": ("Codex CLI", "Instale a CLI do Codex (codex)")
+        "codex": ("Codex CLI", "Instale a CLI do Codex (codex)"),
+        "hermes": ("Hermes Agent", "Execute: iex (irm https://hermes-agent.nousresearch.com/install.ps1) no Windows")
     }
     for cmd, (name, install_hint) in tools.items():
         if shutil.which(cmd) is not None:
