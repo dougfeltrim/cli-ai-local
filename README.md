@@ -126,6 +126,8 @@ cli-ai
 cli-ai-local
 ```
 
+> **⚠️ Aviso no Windows:** Se você receber o erro *"O termo 'cli-ai' não é reconhecido"*, significa que a pasta de Scripts do Python (ex: `C:\Users\SeuUsuario\AppData\Roaming\Python\Python314\Scripts`) não está no seu `PATH` do sistema. O próprio comando `pip` exibe um aviso em amarelo com o caminho correto durante a instalação. Adicione esse caminho nas Variáveis de Ambiente do Windows e reinicie o terminal.
+
 Você verá o menu interativo:
 ```text
 ╔═══════════════════════════════════╗
