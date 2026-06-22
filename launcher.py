@@ -218,6 +218,7 @@ def main():
         env['CLAUDE_MODEL'] = selected_model
         env['CODEX_MODEL'] = selected_model
         env['GEMINI_MODEL'] = selected_model
+    env['CLAUDE_CODE_ATTRIBUTION_HEADER'] = '0'
 
     # Sanitize ANTHROPIC_BASE_URL (Claude CLI automatically appends /v1/messages)
     base_url = env.get('ANTHROPIC_BASE_URL', '')
