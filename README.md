@@ -92,19 +92,38 @@ git clone https://github.com/dougfeltrim/cli-ai-local.git
 cd cli-ai-local
 ```
 
-**2. Execute o script de Setup:**  
+**2. Execute o script de Instalação:**  
 Este script instalará dependências, criará seu arquivo `.env` padrão e ajustará permissões.
 ```bash
 # No Windows
-python setup.py
+python install.py
 
 # No Linux/macOS
-python3 setup.py
+python3 install.py
 ```
 
 **3. Inicie o Launcher!**
+Após o setup, você pode iniciar o launcher de duas formas:
+
+**A) Execução Local (na pasta do projeto)**
 ```bash
-python launcher.py
+# Windows
+.venv\Scripts\cli-ai
+
+# Linux/macOS
+.venv/bin/cli-ai
+```
+
+**B) Instalação Global (rodar de QUALQUER terminal)**
+Para que o comando fique disponível em todo o sistema operacional a partir de qualquer pasta (apenas passando o nome do comando), execute:
+```bash
+pip install --user -e .
+```
+E agora você pode iniciá-lo de qualquer lugar com:
+```bash
+cli-ai
+# ou
+cli-ai-local
 ```
 
 Você verá o menu interativo:
@@ -157,7 +176,7 @@ Inicia o **Hermes Agent**, um agente autônomo com recursos avançados.
 
 ## ⚙️ Configuração Avançada
 
-Todo o controle está no seu arquivo `.env` (criado durante o `setup.py`).
+Todo o controle está no seu arquivo `.env` (criado durante o `install.py`).
 
 <details>
 <summary><strong>Ver variáveis disponíveis no .env</strong></summary>

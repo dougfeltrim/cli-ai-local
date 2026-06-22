@@ -15,6 +15,12 @@ try:
 except ImportError:
     HAS_RICH = False
 
+try:
+    import inquirer
+    HAS_INQUIRER = True
+except ImportError:
+    HAS_INQUIRER = False
+
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -29,35 +35,45 @@ def get_os_type():
 
 def load_env():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    env_path = os.path.join(base_dir, '.env')
-    if os.path.exists(env_path):
-        with open(env_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
-                if '=' in line:
-                    key, val = line.split('=', 1)
-                    key = key.strip()
-                    val = val.strip()
-                    
-                    # Handle end of line comments
-                    if '#' in val:
-                        # Check if quoted
-                        if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
-                            pass
-                        elif (val.startswith('"') and '"' in val[1:]) or (val.startswith("'") and "'" in val[1:]):
-                            q_char = val[0]
-                            closing_idx = val.find(q_char, 1)
-                            if closing_idx != -1:
-                                val = val[:closing_idx + 1].strip()
-                        else:
-                            val = val.split('#', 1)[0].strip()
+    paths_to_check = [
+        os.path.join(base_dir, '.env'),                 # Repository root
+        os.path.expanduser('~/.env-cli-ai-local'),       # Global home dir config
+        os.path.join(os.getcwd(), '.env')                # Current folder specific config
+    ]
+    
+    for env_path in paths_to_check:
+        if os.path.exists(env_path):
+            try:
+                with open(env_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith('#'):
+                            continue
+                        if '=' in line:
+                            key, val = line.split('=', 1)
+                            key = key.strip()
+                            val = val.strip()
                             
-                    # Remove surrounding quotes if present
-                    if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
-                        val = val[1:-1]
-                    os.environ[key] = val
+                            # Handle end of line comments
+                            if '#' in val:
+                                # Check if quoted
+                                if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                                    pass
+                                elif (val.startswith('"') and '"' in val[1:]) or (val.startswith("'") and "'" in val[1:]):
+                                    q_char = val[0]
+                                    closing_idx = val.find(q_char, 1)
+                                    if closing_idx != -1:
+                                        val = val[:closing_idx + 1].strip()
+                                else:
+                                    val = val.split('#', 1)[0].strip()
+                                    
+                            # Remove surrounding quotes if present
+                            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                                val = val[1:-1]
+                            os.environ[key] = val
+            except Exception:
+                pass
+
 
 def get_local_models():
     """Returns a list of local LLM models using lms ls --json."""
@@ -76,6 +92,23 @@ def select_model(provider_name):
     models = get_local_models()
     if not models:
         return None  # No models found, rely on default
+
+    if HAS_INQUIRER:
+        choices = [("Usar Modelo Padrao (do arquivo .env)", "DEFAULT")] + [(m, m) for m in models]
+        questions = [
+            inquirer.List('model',
+                          message=f"Selecione o modelo para {provider_name}",
+                          choices=choices,
+                          carousel=True)
+        ]
+        try:
+            answers = inquirer.prompt(questions)
+            if not answers or answers['model'] == "DEFAULT":
+                return None
+            return answers['model']
+        except KeyboardInterrupt:
+            print("\nOperacao cancelada pelo usuario.")
+            sys.exit(0)
 
     if HAS_RICH:
         console = Console()
@@ -108,12 +141,13 @@ def print_menu():
     if HAS_RICH:
         console = Console()
         clear_screen()
-        title = Text("CLI Local AI Launcher", style="bold cyan")
-        subtitle = Text(f"Sistema Operacional: {platform.system()}", style="italic gray50")
+        
+        panel_content = Text()
+        panel_content.append("CLI Local AI Launcher\n", style="bold cyan")
+        panel_content.append(f"Sistema Operacional: {platform.system()}", style="italic gray50")
         
         console.print(Panel(
-            title, 
-            subtitle=subtitle,
+            panel_content,
             border_style="cyan", 
             box=box.ROUNDED, 
             expand=False
@@ -155,7 +189,30 @@ def print_menu():
         print("  [Q] Quit")
         print("")
 
+def check_and_run_in_venv():
+    """Detects if .venv exists and current executable is not from venv. Relaunches if so."""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    venv_dir = os.path.join(base_dir, '.venv')
+    if os.path.exists(venv_dir):
+        current_exe = os.path.abspath(sys.executable)
+        venv_dir_abs = os.path.abspath(venv_dir)
+        
+        if not current_exe.startswith(venv_dir_abs):
+            is_win = platform.system().lower() == "windows"
+            if is_win:
+                venv_python = os.path.join(venv_dir, 'Scripts', 'python.exe')
+            else:
+                venv_python = os.path.join(venv_dir, 'bin', 'python')
+                
+            if os.path.exists(venv_python):
+                cmd = [venv_python, __file__] + sys.argv[1:]
+                try:
+                    sys.exit(subprocess.run(cmd).returncode)
+                except KeyboardInterrupt:
+                    sys.exit(0)
+
 def main():
+    check_and_run_in_venv()
     load_env()
     os_type = get_os_type()
     if os_type == 'unknown':
@@ -164,11 +221,36 @@ def main():
 
     print_menu()
 
-    if HAS_RICH:
-        console = Console()
-        choice = console.input("[bold cyan]Choose option [1-5, Q]: [/]").strip().upper()
+    if HAS_INQUIRER:
+        choices = [
+            ("Claude Code", "1"),
+            ("Codex OpenAI", "2"),
+            ("Gemini CLI", "3"),
+            ("LM Studio (Direct)", "4"),
+            ("Hermes Agent", "5"),
+            ("Sair (Quit)", "Q")
+        ]
+        questions = [
+            inquirer.List('provider',
+                          message="Escolha a ferramenta de IA que deseja iniciar",
+                          choices=choices,
+                          carousel=True)
+        ]
+        try:
+            answers = inquirer.prompt(questions)
+            if not answers:
+                print("Saindo...")
+                sys.exit(0)
+            choice = answers['provider']
+        except KeyboardInterrupt:
+            print("\nSaindo...")
+            sys.exit(0)
     else:
-        choice = input("Choose option [1-5, Q]: ").strip().upper()
+        if HAS_RICH:
+            console = Console()
+            choice = console.input("[bold cyan]Choose option [1-5, Q]: [/]").strip().upper()
+        else:
+            choice = input("Choose option [1-5, Q]: ").strip().upper()
 
     if choice == 'Q':
         print("Exiting...")

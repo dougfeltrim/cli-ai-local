@@ -20,13 +20,41 @@ def main():
     print("\n[1/5] Verificando ambiente Python...")
     print(f"Versao: {platform.python_version()}")
 
-    # 2. Instalar dependencias (se houver)
-    print("\n[2/5] Instalando dependencias do requirements.txt...")
+    # 2. Criar ambiente virtual e instalar dependencias
+    print("\n[2/5] Configurando ambiente virtual e dependencias...")
+    is_win = platform.system().lower() == "windows"
+    venv_dir = os.path.join(os.getcwd(), ".venv")
+    
+    if not os.path.exists(venv_dir):
+        print("Criando ambiente virtual (.venv)...")
+        try:
+            subprocess.run([sys.executable, "-m", "venv", ".venv"], check=True)
+            print("Ambiente virtual criado com sucesso.")
+        except Exception as e:
+            print(f"Erro ao criar ambiente virtual: {e}")
+            sys.exit(1)
+    else:
+        print("Ambiente virtual (.venv) ja existe.")
+
+    # Definir interpretador do ambiente virtual
+    if is_win:
+        venv_python = os.path.join(venv_dir, "Scripts", "python.exe")
+    else:
+        venv_python = os.path.join(venv_dir, "bin", "python")
+
     if os.path.exists("requirements.txt"):
-        if run_command(f"{sys.executable} -m pip install -r requirements.txt"):
-            print("Dependencias instaladas com sucesso.")
+        print("Instalando dependencias do requirements.txt no ambiente virtual...")
+        # Atualiza o pip do venv primeiro
+        run_command(f'"{venv_python}" -m pip install --upgrade pip')
+        if run_command(f'"{venv_python}" -m pip install -r requirements.txt'):
+            print("Dependencias instaladas com sucesso no .venv.")
         else:
-            print("Aviso: Falha ao instalar dependencias ou requirements.txt esta vazio.")
+            print("Aviso: Falha ao instalar dependencias no .venv.")
+            
+        # Instalar o próprio pacote em modo editável para registrar o comando
+        print("Registrando o launcher como comando local (cli-ai)...")
+        if run_command(f'"{venv_python}" -m pip install -e .'):
+            print("Comando 'cli-ai' registrado com sucesso no .venv.")
     else:
         print("Arquivo requirements.txt nao encontrado. Pulando...")
 
@@ -73,11 +101,14 @@ def main():
     print("\n=============================================")
     print("        CONFIGURACAO CONCLUIDA!")
     print("=============================================")
-    print("\nPara iniciar a aplicacao, use:")
+    print("\nPara iniciar a aplicacao no diretorio do projeto, use:")
     if platform.system().lower() == "windows":
-        print("python launcher.py")
+        print("  .venv\\Scripts\\cli-ai  (ou python launcher.py)")
     else:
-        print("python3 launcher.py")
+        print("  .venv/bin/cli-ai       (ou python3 launcher.py)")
+    print("\nSe desejar instalar globalmente para rodar de QUALQUER terminal, execute:")
+    print("  pip install --user -e .")
+    print("  (Isso disponibilizara o comando 'cli-ai' ou 'cli-ai-local' globalmente)")
     print("=============================================")
 
 if __name__ == "__main__":

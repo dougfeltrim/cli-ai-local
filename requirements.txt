@@ -1,2 +1,3 @@
 # Dependências opcionais para interface rica
 rich>=12.0.0
+inquirer>=2.9.0
