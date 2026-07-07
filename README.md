@@ -28,7 +28,7 @@
 
 O **Local AI CLI Launcher** é uma aplicação projetada para centralizar e facilitar o lançamento de diversos agentes de codificação baseados em IA. Ele elimina a necessidade de configurações manuais repetitivas, oferecendo:
 
-- 🎛️ **Menu unificado** para lançar Claude Code, Codex, Gemini, LM Studio e Hermes Agent.
+- 🎛️ **Menu unificado** para lançar Claude Code, Codex, LM Studio e Hermes Agent.
 - 🔄 **Configuração automática** de variáveis de ambiente.
 - ⚙️ **Customização total** via arquivo `.env`.
 - 🛡️ **Privacidade** – execute seus modelos e agentes totalmente de forma local.
@@ -72,7 +72,6 @@ Certifique-se de ter as seguintes ferramentas instaladas em sua máquina:
 | **Claude Code**  | Obrigatório | `npm install -g @anthropic-ai/claude-code` |
 | **LM Studio**    | Recomendado | [lmstudio.ai](https://lmstudio.ai)              |
 | **Hermes Agent** |   Opcional   | https://github.com/nousresearch/hermes-agent |
-| **Gemini CLI**   |   Opcional   | `npm install -g @google/gemini-cli`        |
 | **Ollama**       |   Opcional   | [ollama.com](https://ollama.com)                |
 
 ### 🔍 Verificar Instalação
@@ -81,7 +80,6 @@ Certifique-se de ter as seguintes ferramentas instaladas em sua máquina:
 python --version          # ✓ Python 3.8+
 claude --version          # ✓ Claude Code
 lms --version             # ✓ LM Studio (se usar)
-gemini --version          # ✓ Gemini CLI (se usar)
 hermes --version          # ✓ Hermes Agent (se usar)
 ```
 
@@ -147,9 +145,8 @@ Você verá o menu interativo:
 Escolha uma opção:
 [1] Claude Code + LM Studio Local
 [2] Codex OpenAI
-[3] Gemini CLI
-[4] LM Studio (Direct)
-[5] Hermes Agent
+[3] LM Studio (Direct)
+[4] Hermes Agent
 [0] Sair
 
 → Digite a opção:
@@ -173,21 +170,14 @@ Inicia a interface do **Codex** configurada para modelos compatíveis com a API 
 - **Ideal para:** Utilizar modelos mais robustos via API (como GPT-4o ou Claude 3.5 Sonnet através de proxies).
 - **Como funciona:** Carrega o modelo de `CODEX_MODEL` e repassa argumentos adicionais nativamente.
 
-### `[3]` Gemini CLI
-
-Inicia o **terminal do Gemini** para interações diretas com os modelos do Google.
-
-- **Ideal para:** Interações multimodais e uso do ecossistema Google no terminal.
-- **Como funciona:** Inicia a sessão interativa com o modelo definido em `GEMINI_MODEL`.
-
-### `[4]` LM Studio (Direct)
+### `[3]` LM Studio (Direct)
 
 Gerenciamento rápido do LM Studio direto do terminal.
 
 - **Ideal para:** Trocas rápidas de modelos e setup automático "mão na roda".
 - **Como funciona:** Descarrega modelos antigos, carrega o novo `CLAUDE_MODEL`, inicia o servidor em background e já abre o Claude Code vinculado a ele.
 
-### `[5]` Hermes Agent
+### `[4]` Hermes Agent
 
 Inicia o **Hermes Agent**, um agente autônomo com recursos avançados.
 
@@ -211,12 +201,6 @@ CLAUDE_MODEL=qwen2.5:32b
 ANTHROPIC_BASE_URL=http://localhost:1234
 ANTHROPIC_AUTH_TOKEN=lmstudio
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Gemini CLI
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GEMINI_MODEL=gemini-2.0-flash
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Codex OpenAI
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CODEX_MODEL=gpt-oss:20b
@@ -237,11 +221,22 @@ ANTHROPIC_AUTH_TOKEN=ollama
 
 </details>
 
+<details>
+<summary><strong>Uso de Modelos Locais (Codex)</strong></summary>
+
+### 🤖 Codex OpenAI com Modelos Locais (Modo OSS)
+O **Codex CLI** suporta o uso de modelos locais (como Qwen ou Llama rodando via LM Studio ou Ollama) através do modo Open-Source (OSS).
+- **Como Funciona**: Se você selecionar um modelo local ativo do LM Studio no menu do Launcher ao iniciar o Codex, o Launcher irá automaticamente adicionar os parâmetros `--oss --local-provider lmstudio` à execução.
+- **Importante**: Se você tentar passar um modelo local (ex: `google/gemma-4-e2b`) sem o modo OSS ativado ou com sua conta padrão do ChatGPT (cloud), você receberá o erro:
+  `The '[model]' model is not supported when using Codex with a ChatGPT account.`
+  Isso ocorre porque as contas ChatGPT integradas suportam apenas modelos oficiais da OpenAI. Portanto, certifique-se de iniciar o Codex com o modo OSS ativado para conexões locais.
+</details>
+
 ---
 
 ## 🛠️ Solução de Problemas
 
-- **Comando não encontrado (`claude`, `lms`, `gemini`)**As ferramentas não estão no `PATH`. Reinstale as dependências via NPM e reinicie seu terminal.
+- **Comando não encontrado (`claude`, `lms`)** As ferramentas não estão no `PATH`. Instale as ferramentas adequadas e reinicie seu terminal.
 - **Erro de Permissão (Linux/macOS)**Execute `chmod +x scripts/*.sh` e `chmod +x launcher.py`.
 - **PowerShell não executa o script (Windows)**Abra o PowerShell como Administrador e rode: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 - **Porta 1234 já em uso (LM Studio)**
@@ -255,7 +250,6 @@ ANTHROPIC_AUTH_TOKEN=ollama
 | :--------------------- | :-----: | :---: | :---: |
 | **Claude Code**  |   ✅   | ⚠️ | ⚠️ |
 | **LM Studio**    |   ✅   | ⚠️ | ⚠️ |
-| **Gemini CLI**   |  ⚠️  | ⚠️ | ⚠️ |
 | **Codex OpenAI** |   ✅   | ⚠️ | ⚠️ |
 | **Hermes Agent** |   ✅   | ⚠️ | ⚠️ |
 

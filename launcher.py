@@ -134,7 +134,6 @@ def print_menu():
     # Check tool statuses
     status_claude = "[green][OK] Instalado[/]" if shutil.which("claude") else "[red][X] Nao Encontrado[/]"
     status_codex = "[green][OK] Instalado[/]" if shutil.which("codex") else "[red][X] Nao Encontrado[/]"
-    status_gemini = "[green][OK] Instalado[/]" if shutil.which("gemini") else "[red][X] Nao Encontrado[/]"
     status_lms = "[green][OK] Instalado[/]" if shutil.which("lms") else "[red][X] Nao Encontrado[/]"
     status_hermes = "[green][OK] Instalado[/]" if shutil.which("hermes") else "[red][X] Nao Encontrado[/]"
 
@@ -160,9 +159,8 @@ def print_menu():
         
         table.add_row("1", "Claude Code", status_claude)
         table.add_row("2", "Codex OpenAI", status_codex)
-        table.add_row("3", "Gemini CLI", status_gemini)
-        table.add_row("4", "LM Studio (Direct)", status_lms)
-        table.add_row("5", "Hermes Agent", status_hermes)
+        table.add_row("3", "LM Studio (Direct)", status_lms)
+        table.add_row("4", "Hermes Agent", status_hermes)
         table.add_row("Q", "Sair (Quit)", "[bold red]Sair[/]")
         
         console.print(table)
@@ -176,16 +174,14 @@ def print_menu():
         
         raw_status_claude = "[OK] Instalado" if shutil.which("claude") else "[X] Nao Encontrado"
         raw_status_codex = "[OK] Instalado" if shutil.which("codex") else "[X] Nao Encontrado"
-        raw_status_gemini = "[OK] Instalado" if shutil.which("gemini") else "[X] Nao Encontrado"
         raw_status_lms = "[OK] Instalado" if shutil.which("lms") else "[X] Nao Encontrado"
         raw_status_hermes = "[OK] Instalado" if shutil.which("hermes") else "[X] Nao Encontrado"
         
         print("\nSelect LLM Provider:")
         print(f"  [1] Claude Code       ({raw_status_claude})")
         print(f"  [2] Codex OpenAI      ({raw_status_codex})")
-        print(f"  [3] Gemini CLI        ({raw_status_gemini})")
-        print(f"  [4] LM Studio (Direct) ({raw_status_lms})")
-        print(f"  [5] Hermes Agent      ({raw_status_hermes})")
+        print(f"  [3] LM Studio (Direct) ({raw_status_lms})")
+        print(f"  [4] Hermes Agent      ({raw_status_hermes})")
         print("  [Q] Quit")
         print("")
 
@@ -225,9 +221,8 @@ def main():
         choices = [
             ("Claude Code", "1"),
             ("Codex OpenAI", "2"),
-            ("Gemini CLI", "3"),
-            ("LM Studio (Direct)", "4"),
-            ("Hermes Agent", "5"),
+            ("LM Studio (Direct)", "3"),
+            ("Hermes Agent", "4"),
             ("Sair (Quit)", "Q")
         ]
         questions = [
@@ -248,9 +243,9 @@ def main():
     else:
         if HAS_RICH:
             console = Console()
-            choice = console.input("[bold cyan]Choose option [1-5, Q]: [/]").strip().upper()
+            choice = console.input("[bold cyan]Choose option [1-4, Q]: [/]").strip().upper()
         else:
-            choice = input("Choose option [1-5, Q]: ").strip().upper()
+            choice = input("Choose option [1-4, Q]: ").strip().upper()
 
     if choice == 'Q':
         print("Exiting...")
@@ -260,9 +255,8 @@ def main():
     provider_map = {
         '1': 'claude',
         '2': 'codex',
-        '3': 'gemini',
-        '4': 'lmstudio',
-        '5': 'hermes'
+        '3': 'lmstudio',
+        '4': 'hermes'
     }
 
     if choice not in provider_map:
@@ -274,9 +268,8 @@ def main():
     provider_names = {
         '1': 'Claude Code',
         '2': 'Codex OpenAI',
-        '3': 'Gemini CLI',
-        '4': 'LM Studio (Direct)',
-        '5': 'Hermes Agent'
+        '3': 'LM Studio (Direct)',
+        '4': 'Hermes Agent'
     }
     provider_name = provider_names.get(choice, "Provedor")
     selected_model = select_model(provider_name)
@@ -305,7 +298,6 @@ def main():
     if selected_model:
         env['CLAUDE_MODEL'] = selected_model
         env['CODEX_MODEL'] = selected_model
-        env['GEMINI_MODEL'] = selected_model
         env['HERMES_MODEL'] = selected_model
     env['CLAUDE_CODE_ATTRIBUTION_HEADER'] = '0'
 
@@ -323,9 +315,13 @@ def main():
             cmd = ["powershell", "-ExecutionPolicy", "Bypass", "-File", script_path]
             if selected_model:
                 cmd.extend(["-Model", selected_model])
+            if choice == '2' and selected_model:
+                cmd.extend(["--oss", "--local-provider", "lmstudio"])
         else:
             # Use Bash to run the .sh script, forwarding any extra CLI arguments
             cmd = ["bash", script_path]
+            if choice == '2' and selected_model:
+                cmd.extend(["--oss", "--local-provider", "lmstudio"])
 
         cmd.extend(sys.argv[1:])
         subprocess.run(cmd, env=env, check=True)
