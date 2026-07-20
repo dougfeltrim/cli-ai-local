@@ -14,10 +14,7 @@ if (-not $Model) {
   }
 }
 
-$defaultUrl = "http://localhost:1234"
-if (-not $env:ANTHROPIC_BASE_URL) {
-  $env:ANTHROPIC_BASE_URL = $defaultUrl
-}
+$env:ANTHROPIC_BASE_URL = "http://localhost:1234"
 if (-not $env:ANTHROPIC_AUTH_TOKEN) {
   $env:ANTHROPIC_AUTH_TOKEN = "lmstudio"
 }

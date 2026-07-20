@@ -161,7 +161,7 @@ Escolha uma opção:
 Abre o **Claude Code** já configurado para utilizar um modelo local hospedado no LM Studio.
 
 - **Ideal para:** Máxima privacidade, uso de modelos locais (Qwen, Llama, Mistral) e independência de APIs externas.
-- **Como funciona:** Define automaticamente `ANTHROPIC_BASE_URL` e `CLAUDE_MODEL` a partir do seu `.env`.
+- **Como funciona:** O launcher força `ANTHROPIC_BASE_URL=http://localhost:1234` no fluxo do Claude e usa `CLAUDE_MODEL` do seu `.env` ou do modelo selecionado no menu.
 
 ### `[2]` Codex OpenAI
 
@@ -205,6 +205,8 @@ ANTHROPIC_AUTH_TOKEN=lmstudio
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CODEX_MODEL=gpt-oss:20b
 ```
+
+> **Observação:** para o fluxo do Claude, o launcher sempre fixa `ANTHROPIC_BASE_URL` em `http://localhost:1234`, mesmo que exista outro valor no ambiente.
 
 </details>
 
